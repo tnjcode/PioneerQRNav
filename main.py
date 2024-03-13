@@ -1,29 +1,58 @@
-import pioneer
 import qrscanner
+import serial
 import time
+import threading
 
-pn = pioneer.Pioneer()
+ser = serial.Serial('COM4',9600,timeout=.1) 
 
-while True:
-    qrscanner.open_window()
-    op = qrscanner.qr_detect()
-    print(op)
+op = qrscanner.qr_detect()
 
-    if op == "kanan":
-        pn.move_pioneer(3, 0)
-        # time.sleep(1)
+def moveMotor(speed1,speed2):
+    speed = str(speed1)+","+str(speed2)+"\n"
+    ser.write(bytes(speed,  'utf-8'))
+
+def detectCam():
+    while True:
+        qrscanner.open_window()
+
+def cetakHasil():
+    global op
+    while True:
+        op = qrscanner.qr_detect()
+        print(op)
+        if op == "kanan":
+            moveMotor(200,0)
+            time.sleep(1)
+        
+        elif op == "kiri":
+            moveMotor(0,200)
+            time.sleep(0.1)
+
+        elif op == "mundur":
+            moveMotor(-200,-200)
+            time.sleep(1)
+        
+        elif op == "maju":
+            moveMotor(200,200)
+            time.sleep(1)
+        
+        else:
+            moveMotor(0, 0)
+            time.sleep(1)
+
+
+# while True:
+
     
-    elif op == "kiri":
-        pn.move_pioneer(0, 3)
-        # time.sleep(1)
+#     detectCam()
+#     cetakHasil()
 
-    elif op == "mundur":
-        pn.move_pioneer(-5, -5)
-        # time.sleep(1)
-    
-    elif op == "maju":
-        pn.move_pioneer(5,5)
-        # time.sleep(1)
-    
-    else:
-        pn.move_pioneer(0, 0)
+detect_thread = threading.Thread(target=detectCam)
+cetak_thread = threading.Thread(target=cetakHasil)
+
+detect_thread.start()
+cetak_thread.start()
+
+detect_thread.join()
+cetak_thread.join()
+  
