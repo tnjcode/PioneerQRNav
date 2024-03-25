@@ -6,6 +6,7 @@ window_name = 'OpenCV QR Code'
 qcd = cv2.QRCodeDetector()
 cap = cv2.VideoCapture(camera_id)
 ret, frame = cap.read()
+
     
 def qr_detect():
     ret, frame = cap.read()
